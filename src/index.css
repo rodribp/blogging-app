@@ -11,3 +11,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.blur-div {
+  filter: blur(10px); /* Adjust the blur radius as needed */
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
