@@ -9,9 +9,6 @@ const USR_MNG_URL = DOMAIN_URL + 'usermanager/api/v1/';
 const USR_MNG_KEY = '60bdbc8a230143beb16644027b168771';
 
 const LNURLP_URL = DOMAIN_URL + 'lnurlp/api/v1/links';
-
-var formUser = document.getElementById('create-user-form');
-
 //get data from lnbits api
 const apiRequestGet = async (action, usr, paramKey) => {
     let key = '';
@@ -187,4 +184,11 @@ const createNewUser = async (username, walletname, email, password) => {
     return data.usr;
 }
 
-export {createNewUser, loginByUsrId, getLnurlp, getDataFromUsrId}
+const getWalletUrl = async (usrId) => {
+    let data = await getDataFromUsrId(usrId);
+    let url = DOMAIN_URL + 'wallet?usr=' + usrId + '&wal=' + data.id;
+
+    return url;
+}
+
+export {createNewUser, loginByUsrId, getLnurlp, getDataFromUsrId, getWalletUrl}

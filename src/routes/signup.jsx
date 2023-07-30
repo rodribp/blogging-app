@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import NavbarSample from "../components/navbar";
 import { Container, Row, Col, Form, Button, Alert, Spinner } from "react-bootstrap";
-import { createNewUser  } from "../api/component";
+import { createNewUser, getDataFromUsrId, getLnurlp  } from "../api/component";
+import { userSchema, insertSanity } from "../api/sanity";
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ const SignUp = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        setFormData({
+        setFormData({   
             ...formData,
             [name]: value
         });
@@ -25,16 +26,23 @@ const SignUp = () => {
         setAlert(<Spinner animation="border" role="status">
         <span className="visually-hidden">Loading...</span>
       </Spinner>)
-        let usr = await createNewUser(formData.name, formData.walletName)
+        let usr = await createNewUser(formData.name, formData.walletName);
+        let data = await getDataFromUsrId(usr);
+        let lnurlp = await getLnurlp(data.inkey);
+        let responseSanity = await insertSanity(userSchema(formData.name, formData.walletName, usr, lnurlp));
 
-        if (usr) {
-            setAlert(<Alert key='success' variant='success'>
-                User created succesfully, now you can login using this private key: {usr}
+        if (!usr) {
+            setAlert(<Alert key='danger' variant='danger'>
+                There was an error while signing up on lnbits
+              </Alert>)
+        } else if (!responseSanity) {
+            setAlert(<Alert key='danger' variant='danger'>
+                There was an error while signing up on sanity
               </Alert>)
         } else {
-            setAlert(<Alert key='danger' variant='danger'>
-                There was an error while signing up
-              </Alert>)
+            setAlert(<Alert key='success' variant='success'>
+            User created succesfully, now you can login using this private key: {usr}
+        </Alert>)
         }
     }
 

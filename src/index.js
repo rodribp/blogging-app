@@ -11,10 +11,10 @@ import Wallet from "./routes/wallet"
 import Login from "./routes/login"
 import SignUp from "./routes/signup"
 import ErrorPage from "./error-page";
+import { isLoggedIn } from "./session";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
-const router = createBrowserRouter([
+const loggedRoutes = [
   {
     path: "/",
     element: <App />,
@@ -27,6 +27,14 @@ const router = createBrowserRouter([
   {
     path: "/wallet",
     element: <Wallet />
+  }
+];
+
+const noLoggedRoutes = [
+  {
+    path: "/",
+    element: <App />,
+    errorElement: <ErrorPage />
   },
   {
     path: "/login",
@@ -36,7 +44,9 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <SignUp />
   }
-]);
+];
+
+const router = isLoggedIn() ? createBrowserRouter(loggedRoutes) : createBrowserRouter(noLoggedRoutes)
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -1,11 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavbarSample from '../components/navbar';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { QRCodeSVG } from 'qrcode.react';
 import '../index.css'
+import { getWalletUrl } from '../api/component';
+import { getUserPrivKey } from '../session';
 
 const Wallet = () => {
   const [isBlurred, setIsBlurred] = useState(true);
+  const [walletUrl, setWalletUrl] = useState('');
+
+  useEffect(() => {
+    const fetchWalletUrl = async () => {
+      try {
+        const userPrivKey = getUserPrivKey();
+        const url = await getWalletUrl(userPrivKey);
+
+        setWalletUrl(url);
+      } catch (error) {
+        console.error('Error fetching url: ' + error)
+      }
+    };
+
+    fetchWalletUrl();
+  }, []);
 
   return (
   <>
@@ -18,7 +36,7 @@ const Wallet = () => {
       <br />
       <br />
       <Row className={isBlurred ? 'blur-div' : ''}>
-        <QRCodeSVG size='350' />
+        <QRCodeSVG size='350' value={walletUrl} />
       </Row>
       <br />
       <br />

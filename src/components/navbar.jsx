@@ -3,19 +3,17 @@ import { Navbar, Nav, Image, Button} from 'react-bootstrap';
 import { AiFillEdit, AiFillWallet, AiOutlineLogout, AiOutlineLogin, AiOutlineUserAdd } from "react-icons/ai"
 import logo from '../img/logo1.png'
 import { useState } from 'react';
+import { isLoggedIn, logOut } from '../session';
 
 function NavbarSample() {
     
-const [isLogged, setIsLogged] = useState(true);
+const [isLogged, setIsLogged] = useState(isLoggedIn());
 
 const handleLogout = () => {
-  setIsLogged(false)
+    setIsLogged(!isLoggedIn());
+    window.location.href = '/';
+    logOut();
 }
-
-const handleLogin = () => {
-  setIsLogged(true)
-}
-
     
     var elements = isLogged ? (
         <>
