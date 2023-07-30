@@ -62,7 +62,7 @@ const getUserIdByPrivKey = async (privkey) => {
 
 const getAllArticles = async () => {
     try {
-        const Query = `*[_type == 'articles']{"author": author -> {
+        const Query = `*[_type == 'articles'] | order(_createdAt desc) {"author": author -> {
             _id,
             username,
             wallet,
