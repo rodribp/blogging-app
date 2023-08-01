@@ -1,5 +1,5 @@
 import { createClient } from "@sanity/client";
-
+import { hashPassword } from "./security";
 const PROJECT_ID = 'jrx60lbk';
 const API_TOKEN = 'skZlBezOtpBXOcOi75aYhChP751RZkvfIPCAtObDWcIx3DsxDyHbGeDIJ3CzKxvi0BE4gxElfRhkLEcmmkQ92vtFgNOVOhBeLydHrF5fsJg2ugEf7feoyxuXYA1Wmzwi2KDHPvCSrpSWrV0k2M0ZAR341IV1EEeRQNTipkXRCllWU60azh0M';
 const DATASET = 'production';
@@ -11,11 +11,13 @@ const client = createClient({
     token: API_TOKEN
 });
 
-const userSchema = (name, walletname, privkey, lnurlStr) => {
+const userSchema = async (name, walletname, password, privkey, lnurlStr) => {
+    let hash = await hashPassword(password);
     return {
         _type: 'users',
         username: name,
         wallet: walletname,
+        password: hash,
         key: privkey,
         lnurlp: lnurlStr
     }
@@ -44,14 +46,14 @@ const insertSanity = async (data) => {
 
 const getUserIdByPrivKey = async (privkey) => {
     try {
-      const userQuery = `*[_type == 'users' && key == $privkey]{ _id }`;
+      const userQuery = `*[_type == 'users' && key == $privkey]{ _id, password }`;
       const params = { privkey };
   
       const users = await client.fetch(userQuery, params);
   
       if (users.length > 0) {
-        const userId = users[0]._id;
-        return userId;
+        const user = {id: users[0]._id, hash: users[0].password};
+        return user;
       } else {
         console.log(`User with privkey ${privkey} not found.`);
       }
@@ -66,7 +68,6 @@ const getAllArticles = async () => {
             _id,
             username,
             wallet,
-            key,
             lnurlp
         }, title, content}`;
 

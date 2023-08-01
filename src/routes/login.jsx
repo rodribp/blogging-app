@@ -1,40 +1,56 @@
 import React, { useState } from "react";
 import NavbarSample from "../components/navbar";
-import { Container, Form, Row, Col, Button, Spinner } from "react-bootstrap";
+import { Container, Form, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { getUserIdByPrivKey } from "../api/sanity";
 import { loginByUsrId } from "../api/component";
 import { login } from "../session";
+import { verifyPassword } from "../api/security";
 
 const Login = () => {
 
-    const [privKey, setPrivKey] = useState('');
-    const [spinner, setSpinner] = useState(<></>)
+    const [formData, setFormData] = useState({
+        privKey: '',
+        password: ''
+    });
+    const [alert, setAlert] = useState(<></>)
 
     const handleChange = (e) => {
-        const value = e.target.value;
-        setPrivKey(value);
+        const { name, value } = e.target;
+
+        setFormData({
+            ...formData,
+            [name]: value
+        })
     }
 
     const handleSubmit = async (e) => {
-        setSpinner(<Spinner animation="border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </Spinner>);
         e.preventDefault();
 
-        let res1 = await loginByUsrId(privKey);
-        let usrId = await getUserIdByPrivKey(privKey);
+        setAlert(<Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+        </Spinner>);
 
-
-        if (!res1) {
-            console.log('there was an error while login on lnbits');
-        } else if (!usrId) {
-            console.log('there was an error getting user id from sanity');
+        let responseSanity = await getUserIdByPrivKey(formData.privKey);
+        let responseLnBits = await loginByUsrId(formData.privKey);
+        if (!responseSanity) {
+            setAlert(<Alert key='danger' variant="danger">
+                Private key not found
+            </Alert>)
+        } else if (!responseLnBits) {
+            setAlert(<Alert key='danger' variant="danger">
+                Wallet not found
+            </Alert>)
         } else {
-            login(usrId, privKey);
-            window.location.href = '/';
+            let verify = await verifyPassword(formData.password, responseSanity.hash);
+            if (!verify) {
+                setAlert(<Alert key='danger' variant="danger">
+                    Incorrect password
+                </Alert>)
+            } else {
+                login(responseSanity.id, formData.privKey);
+                window.location.href = '/';
+            }
         }
-
-        
     }
 
     return (
@@ -44,15 +60,21 @@ const Login = () => {
                 <br />
                 <div className="text-center">
                     <h2>Welcome to OrangeBlog!</h2>
-                    {spinner}
                 </div>
                 <br />
                 <Row className="justify-content-md-center">
                     <Col md={6}>
+                        <div className="text-center">
+                            {alert}
+                        </div>
                         <Form onSubmit={handleSubmit}>  
                             <Form.Group className="mb-3">
                                 <Form.Label>Enter your private key</Form.Label>
-                                <Form.Control onChange={handleChange} value={privKey} name="privateKey" type="text" placeholder="XXXXXXXXXXXXXXXXXXXXX" />
+                                <Form.Control onChange={handleChange} value={formData.privKey} name="privKey" type="text" placeholder="XXXXXXXXXXXXXXXXXXXXX" />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control onChange={handleChange} value={formData.password} name="password" type="password" placeholder="your password account" />
                             </Form.Group>
                             <br />
                             <Col className="d-grid gap-2">

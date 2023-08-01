@@ -179,7 +179,7 @@ const createNewUser = async (username, walletname, email, password) => {
     await apiRequestPost('users', 2, createBody(username, walletname, email, password));
     let data = await getLastUsrData();
     await apiRequestPost('extensions?extension=lnurlp&userid=' + data.usr + '&active=true', 3);
-    addLnurlp('tips!', 10, 10000, data.admKey);
+    addLnurlp('tips!', 1, 100000, data.admKey);
 
     return data.usr;
 }
