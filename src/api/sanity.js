@@ -35,6 +35,20 @@ const articleSchema = (title, content, usrId) => {
     }
 }
 
+const followSchema = (loggedId, followedId) => {
+    return {
+        _type: 'following_ledger',
+        follower: {
+            _type: 'reference',
+            _ref: loggedId
+        },
+        followed: {
+            _type: 'reference',
+            _ref: followedId
+        }
+    }
+}
+
 const insertSanity = async (data) => {
     try {
         const response = await client.create(data);
@@ -79,5 +93,32 @@ const getAllArticles = async () => {
     }
 }
 
+async function deleteAllFollowingLedgerDocuments() {
+    try {
+      // Query to select all "following_ledger" documents
+      const query = `*[_type == 'following_ledger']{_id}`;
+  
+      // Perform the Bulk Delete operation
+      const documents = await client.fetch(query);
+      const documentIds = documents.map((doc) => doc._id);
+      
+        documentIds.map(async (docId) => {const result = await client.delete(docId)});
+  
+      console.log(`${documentIds.length} following_ledger documents deleted successfully.`);
+    } catch (error) {
+      console.error('Error deleting following_ledger documents:', error.message);
+    }
+  }
+  
+  // Function to delete a single "following_ledger" document by ID
+  async function deleteFollowingLedgerDocument(documentId) {
+    try {
+      // Use the Sanity client to perform the deletion
+      await client.delete(documentId);
+    } catch (error) {
+      console.error(`Error deleting following_ledger document with ID ${documentId}:`, error.message);
+      throw new Error(`Error deleting following_ledger document with ID ${documentId}`);
+    }
+  }
 
-export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getAllArticles }
+export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getAllArticles, followSchema, deleteAllFollowingLedgerDocuments }
