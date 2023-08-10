@@ -2,11 +2,11 @@
 const DOMAIN_URL = 'https://legend.lnbits.com/';
 
 const ADMIN_URL = DOMAIN_URL + 'api/v1/';
-const ADMIN_KEY = '0f7b309b7365401caf1357a499d37e69';
-const ADMIN_ID_FOR_USR_MNG = '0ad55532d6ff4235850784a388cca6b3';
+const ADMIN_KEY = '5b90c88f65f54ffa96ee765e0eaa9f1c';
+const ADMIN_ID_FOR_USR_MNG = 'ced17392ad9b4b2d8ebd44e0a90d2569';
 
 const USR_MNG_URL = DOMAIN_URL + 'usermanager/api/v1/';
-const USR_MNG_KEY = '60bdbc8a230143beb16644027b168771';
+const USR_MNG_KEY = '2447166808384283b0cb852c581e8916';
 
 const LNURLP_URL = DOMAIN_URL + 'lnurlp/api/v1/links';
 //get data from lnbits api

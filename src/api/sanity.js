@@ -2,7 +2,7 @@ import { createClient } from "@sanity/client";
 import { hashPassword } from "./security";
 const PROJECT_ID = 'jrx60lbk';
 const API_TOKEN = 'skZlBezOtpBXOcOi75aYhChP751RZkvfIPCAtObDWcIx3DsxDyHbGeDIJ3CzKxvi0BE4gxElfRhkLEcmmkQ92vtFgNOVOhBeLydHrF5fsJg2ugEf7feoyxuXYA1Wmzwi2KDHPvCSrpSWrV0k2M0ZAR341IV1EEeRQNTipkXRCllWU60azh0M';
-const DATASET = 'production';
+const DATASET = 'dataset1';
 
 const client = createClient({
     projectId: PROJECT_ID,
