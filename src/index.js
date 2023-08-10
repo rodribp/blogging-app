@@ -11,6 +11,7 @@ import Wallet from "./routes/wallet"
 import Login from "./routes/login"
 import SignUp from "./routes/signup"
 import ErrorPage from "./error-page";
+import Profile from "./routes/profile";
 import { isLoggedIn } from "./session";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -27,6 +28,10 @@ const loggedRoutes = [
   {
     path: "/wallet",
     element: <Wallet />
+  },
+  {
+    path: "/profile",
+    element: <Profile />
   }
 ];
 

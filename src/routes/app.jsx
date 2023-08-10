@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import NavbarSample from '../components/navbar';
 import {QRCodeSVG} from 'qrcode.react';
-import { getAllArticles, followSchema, insertSanity, deleteAllFollowingLedgerDocuments } from '../api/sanity';
+import { getFeedArticles, followSchema, insertSanity, deleteAllFollowingLedgerDocuments } from '../api/sanity';
 import { isLoggedIn, getUserId } from '../session';
 
 const App = () => {
@@ -11,7 +11,7 @@ const App = () => {
 
   useEffect(() => {
     const fetchArticles = async () => {
-      let response = await getAllArticles();
+      let response = await getFeedArticles(id);
 
       setArticles(response);
     }
