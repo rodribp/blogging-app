@@ -94,19 +94,6 @@ const getFeedArticles = async (authorId) => {
     }
 }
 
-const getBio = async (userId) => {
-  try {
-    const query = `*[_type == 'users' && _id == $userId]{ bio }`;
-    const params = { userId };
-
-    const response = await client.fetch(query, params);
-
-    return response[0].bio;
-  } catch (error) {
-    console.error('Error fetching bio: ', error.message);
-  }
-}
-
 async function deleteAllFollowingLedgerDocuments() {
     try {
       // Query to select all "following_ledger" documents
@@ -135,23 +122,9 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
-  const editBio = async (userId, newBio) => {
-    try {
-      let user = await client.getDocument(userId);
-
-      let updatedUser = {...user, bio: newBio}
-
-      let result = client.createOrReplace(updatedUser);
-
-      return result;
-    } catch (error) {
-      console.error("error editing bio: ", error.message);
-    }
-  }
-
   const getUserInfo = async (userId) => {
     try {
-      const query = `*[_type == 'users' && _id == $userId]{ username, wallet, lnurlp }`;
+      const query = `*[_type == 'users' && _id == $userId]{ username, wallet, lnurlp, bio }`;
 
       const result = client.fetch(query, { userId });
 
@@ -161,4 +134,4 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
-export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getFeedArticles, followSchema, deleteAllFollowingLedgerDocuments, getBio, editBio, getUserInfo }
+export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getFeedArticles, followSchema, deleteAllFollowingLedgerDocuments, getUserInfo }
