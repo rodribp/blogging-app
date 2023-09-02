@@ -131,27 +131,16 @@ const Profile = () => {
                                 </Alert>
                                 </Form>
                             </Card.Body>
-                            <Card.Footer>
-                                <Container>
-                                    <Row>
-                                        <Col lg="8">
-                                            <Button variant="light" href="/settings">
-                                                <AiOutlineSetting />
-                                            </Button>
-                                        </Col>
-                                        <Col lg="4">
-                                            <Button variant="primary" onClick={() => setShowModal(true)}>Edit profile</Button>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                                
-
+                            <Card.Footer align="end">
+                                <Button variant="light" href="/settings">
+                                    <AiOutlineSetting />
+                                </Button>
                             </Card.Footer>
                         </Card>
                     </Col>
                     {/* Overlay of my articles submitted */}
                     <Col lg={{span: 8}}>
-                        {articles.map((article) => (
+                        {articles ? articles.map((article) => (
                             <>
                                 <Row key={article._id}>
                                 <Card>
@@ -167,7 +156,7 @@ const Profile = () => {
                                 </Row>
                                 <br />
                             </>
-                        ))}
+                        )) : <div align="center"> <span style={{fontSize: '24px'}}>No articles submitted yet</span></div>}
                     </Col>
                 </Row>
                 <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static"
