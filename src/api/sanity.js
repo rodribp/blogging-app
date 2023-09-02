@@ -134,4 +134,31 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
-export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getFeedArticles, followSchema, deleteAllFollowingLedgerDocuments, getUserInfo }
+  const updateUserInfo = async (userId, username, wallet, bio) => {
+    try {
+
+      const result = await client.patch(userId).set({ username: username, wallet: wallet, bio: bio }).commit();
+      return result;
+    } catch (error) {
+      console.error("Error updating user data", error.message);
+    }
+  }
+
+  const getUserArticles = async (userId) => {
+    try {
+      const query = `*[_type == 'articles' && author._ref == $userId] | order(_createdAt desc) {
+        _id,
+        _createdAt,
+        title,
+        content,
+      }`;
+
+      const result = client.fetch(query, { userId });
+
+      return result;
+    } catch (error) {
+      console.error("Error fetching my articles", error.message);
+    }
+  }
+
+export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getFeedArticles, followSchema, deleteAllFollowingLedgerDocuments, getUserInfo, updateUserInfo, getUserArticles }
