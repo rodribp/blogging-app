@@ -1,6 +1,6 @@
 import Container from 'react-bootstrap/Container';
 import { Navbar, Nav, Image, Button} from 'react-bootstrap';
-import { AiFillEdit, AiFillWallet, AiOutlineLogout, AiOutlineLogin, AiOutlineUserAdd } from "react-icons/ai"
+import { AiFillEdit, AiFillWallet, AiOutlineLogout, AiOutlineLogin, AiOutlineUserAdd, AiOutlineUser } from "react-icons/ai"
 import logo from '../img/logo1.png'
 import { useState } from 'react';
 import { isLoggedIn, logOut } from '../session';
@@ -27,6 +27,12 @@ const handleLogout = () => {
             <AiFillWallet />
             {'     '}
             My wallet
+    </Nav.Link>
+    { '     ' }
+    <Nav.Link href='/profile'>
+            <AiOutlineUser />
+            {'     '}
+            My profile
     </Nav.Link>
     { '     ' }
     <Nav.Link onClick={handleLogout}>
