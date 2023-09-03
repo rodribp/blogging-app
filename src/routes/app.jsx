@@ -33,7 +33,7 @@ const App = () => {
                   <Row>
                     <Col xs="12" sm="10" lg="9">
                       <Card.Title>{article.title}</Card.Title>
-                      <Card.Subtitle className='mb-2 text-muted'>from: {article.author.username} | wallet: {article.author.wallet}</Card.Subtitle>
+                      <Card.Subtitle className='mb-2 text-muted'>from: {article.author.username} | wallet: {article.author.wallet} {article.edited == 1 ? '| edited' : ''}</Card.Subtitle>
                       <Card.Text>{article.content}</Card.Text>
                     </Col>
                     <Col xs="12" sm="2" lg="3" className="text-center">

@@ -83,8 +83,8 @@ const getFeedArticles = async (authorId) => {
             _id,
             username,
             wallet,
-            lnurlp
-        }, title, content}`;
+            lnurlp,
+        }, title, content, edited}`;
         const params = { authorId };
 
         const articles = await client.fetch(Query, params);
@@ -152,6 +152,7 @@ async function deleteAllFollowingLedgerDocuments() {
         _createdAt,
         title,
         content,
+        edited
       }`;
 
       const result = client.fetch(query, { userId });

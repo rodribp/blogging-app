@@ -192,6 +192,7 @@ const Profile = () => {
                                     <Row>
                                         <Col xs="12" sm="12" lg="10">
                                         <Card.Title>{article.title}</Card.Title>
+                                        <Card.Subtitle className='text-muted'>{article.edited == 1 ? 'edited' : ''}</Card.Subtitle>
                                         <Card.Text>{article.content}</Card.Text>
                                         </Col>
                                         <Col  xs="12" sm="12" lg="2">
