@@ -31,7 +31,8 @@ const articleSchema = (title, content, usrId) => {
         author: {
             _type: 'reference',
             _ref: usrId
-        }
+        },
+        edited: '0'
     }
 }
 
@@ -161,4 +162,36 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
-export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getFeedArticles, followSchema, deleteAllFollowingLedgerDocuments, getUserInfo, updateUserInfo, getUserArticles }
+  const deleteArticleById = async (articleId) => {
+    try {
+  
+      // Execute the mutation
+      const response = await client.delete(articleId);
+  
+      return response;
+    } catch (error) {
+      console.error('Error deleting article:', error.message);
+    }
+  }
+
+  const updateArticleById = async (articleId, title, content) => {
+    try {
+      const result = await client.patch(articleId).set( { title: title, content: content, edited: '1'} ).commit();
+      return result;
+    } catch (error) {
+      console.error("Error updating article", error.message);
+    }
+  }
+
+export { userSchema, 
+        articleSchema, 
+        insertSanity, 
+        getUserIdByPrivKey, 
+        getFeedArticles, 
+        followSchema, 
+        deleteAllFollowingLedgerDocuments, 
+        getUserInfo, 
+        updateUserInfo, 
+        getUserArticles, 
+        deleteArticleById,
+        updateArticleById }

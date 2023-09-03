@@ -63,9 +63,11 @@ const Settings = () => {
         bio: ''
     })
     const [updateAlert, setUpdateAlert] = useState(<></>);
+    const [dissSaveButton, setDissSaveButton] = useState(false);
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
+        setDissSaveButton(true);
 
         setFormData({
             ...formData,
@@ -90,8 +92,9 @@ const Settings = () => {
         await fillOutInfo();
 
         setUpdateAlert(<Alert variant="success" key="success" dismissible>
-                Succesfully updated
+                Profile changed succesfully!
         </Alert>)
+        setDissSaveButton(false);
     }
 
     const fillOutInfo = async () => {
@@ -135,7 +138,7 @@ const Settings = () => {
                                 {
                                     edge == 'Profile' ? (<Card.Body>
                                                             {updateAlert}
-                                                                    <Form>
+                                                                    <Form onSubmit={(e) => e.preventDefault()}>
                                                                         <Form.Group>
                                                                             <Form.Label>Username</Form.Label>
                                                                             <Form.Control name="username" type="text" value={formData.username} onChange={handleFormChange} />
@@ -150,7 +153,7 @@ const Settings = () => {
                                                                         </Form.Group>
                                                                     </Form>
                                                                     <br />
-                                                                    <div align="end"><Button variant="primary" onClick={handleSubmitEvent}>
+                                                                    <div align="end"><Button variant={!dissSaveButton ? 'secondary' : 'primary'} onClick={handleSubmitEvent} disabled={!dissSaveButton}>
                                                                         Save Changes
                                                                     </Button></div>
                                                         </Card.Body>

@@ -62,7 +62,7 @@ const handleLogout = () => {
     return (
         <Navbar expand='lg' sticky='top' bg='dark' variant='dark'>
             <Container>
-                <Navbar.Brand href="/" style={{paddingRight: '50%'}}>
+                <Navbar.Brand href="/" style={isLogged ? {paddingRight: '50%'} : {paddingRight: '76%'}}>
                     <Image alt="" src={logo} height="30" className="d-inline-block align-top"/>{'        '}OrangeBlog
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
