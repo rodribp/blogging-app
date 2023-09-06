@@ -28,6 +28,20 @@ function CreateArticleForm() {
         <span className="visually-hidden">Loading...</span>
       </Spinner>)
 
+    if (formData.title.length < 10) {
+      setAlert(<Alert key='info' variant='info'>
+        Title must be 10 characters long or more
+      </Alert>)
+      return;
+    }
+
+    if (formData.content.length < 30) {
+      setAlert(<Alert key='info' variant='info'>
+        Content must be 30 characters long or more
+      </Alert>)
+      return;
+    }
+
     let scheme = articleSchema(formData.title, formData.content, usrId);
     let response = await insertSanity(scheme);
 
