@@ -184,6 +184,29 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
+  const changePassword = async (userId, password) => {
+    try {
+      const hash = await hashPassword(password);
+      const result = await client.patch(userId).set( {password: hash} ).commit();
+      return result;
+    } catch (error) {
+      console.error("Error chaging password", error.message);
+    }
+  }
+
+  const getPasswordById = async (userId) => {
+    try {
+      const query = `*[_type == 'users' && _id == $userId]{ password }`
+      const params = { userId };
+
+      const response = client.fetch(query, params);
+
+      return response;
+    } catch (error) {
+        console.error("Error getting password", error.message);
+    }
+  }
+
 export { userSchema, 
         articleSchema, 
         insertSanity, 
@@ -195,4 +218,6 @@ export { userSchema,
         updateUserInfo, 
         getUserArticles, 
         deleteArticleById,
-        updateArticleById }
+        updateArticleById,
+        changePassword,
+        getPasswordById }

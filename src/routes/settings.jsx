@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import NavbarSample from "../components/navbar";
-import { Container, Row, Col, Button, Card, ListGroup, Form, Spinner, Alert,  } from "react-bootstrap";
+import { Container, Row, Col, Button, Card, ListGroup, Form, Spinner, Alert, Image, Badge } from "react-bootstrap";
 import { getUserId } from "../session";
-import { getUserInfo, updateUserInfo } from "../api/sanity";
+import { getUserInfo, updateUserInfo, getPasswordById, changePassword } from "../api/sanity";
 import { AiOutlineUser, AiOutlineSecurityScan, AiOutlineEdit, AiOutlineSetting } from "react-icons/ai";
+import workingon from '../img/workingon.png'
+import { verifyPassword, isStrong } from "../api/security";
 
 const buttonStyle = {
     width: '100%', // Make the button fill the entire width of the ListGroup.Item
@@ -64,6 +66,19 @@ const Settings = () => {
     })
     const [updateAlert, setUpdateAlert] = useState(<></>);
     const [dissSaveButton, setDissSaveButton] = useState(false);
+    const [formPassword, setFormPassword] = useState({
+        password1: '',
+        password2: '',
+        password3: '' 
+    });
+    const [disabled, setDisabled] = useState({
+        pass1: false,
+        pass2: true
+    });
+    const [isOk, setIsOk] = useState(<></>)
+    const [hash, setHash] = useState('');
+    const [disPassButton, setDisPassButton] = useState(true);
+    const [passAlert, setPassAlert] = useState(<></>);
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
@@ -73,6 +88,123 @@ const Settings = () => {
             ...formData,
             [name]: value
         });
+    }
+
+    const handlePassChange = async (e) => {
+        const { name, value } = e.target;
+
+        setFormPassword({
+            ...formPassword,
+            [name]: value
+        })
+
+        if (name == ['password1']) {
+            const isPassword = await verifyPassword(value, hash);
+            
+            if (!isPassword) {
+                setIsOk(<Badge pill bg="danger">X</Badge>);
+            } else {
+                setIsOk(<Badge pill bg="success">Ok</Badge>);
+                setDisabled({
+                    pass1: true,
+                    pass2: false
+                })
+            }
+        }
+
+        if (name == ['password2']) {
+            const response = isStrong(value);
+            if (formPassword.password3 != value) {
+                setPassAlert(<Alert variant="danger">Passwords don't match!</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            if (value == '') {
+                setPassAlert(<Alert variant="danger">Password is nothing</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            if (!response.isSafe) {
+                setPassAlert(<Alert variant="danger">{response.message}</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            if (value == formPassword.password1) {
+                setPassAlert(<Alert variant="danger">Cannot use the last password</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            setPassAlert(<Alert variant="success">Valid password!</Alert>)
+            setDisPassButton(false);
+        }
+
+        if (name == ['password3']) {
+            const response = isStrong(value);
+            if (formPassword.password2 != value) {
+                setPassAlert(<Alert variant="danger">Passwords don't match!</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            if (value == '') {
+                setPassAlert(<Alert variant="danger">Password is nothing</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            if (!response.isSafe) {
+                setPassAlert(<Alert variant="danger">{response.message}</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            if (value == formPassword.password1) {
+                setPassAlert(<Alert variant="danger">Cannot use the last password</Alert>)
+                setDisPassButton(true);
+                return;
+            }
+
+            setPassAlert(<Alert variant="success">Valid password!</Alert>)
+            setDisPassButton(false);
+        }
+    }
+
+    const getHash = async () => {
+        const response = await getPasswordById(id);
+        setHash(response[0].password);
+    }
+
+    const handleChangePassword = async () => {
+        setPassAlert(<Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+        </Spinner>);
+        const response = await changePassword(id, formPassword.password2);
+
+        if (!response) {
+            setUpdateAlert(<Alert variant="danger" key="danger" dismissible>
+                Error changing password
+            </Alert>);
+            return;
+        }
+
+        setDisPassButton(true);
+        setFormPassword({
+            password1: '',
+            password2: '',
+            password3: '' 
+        });
+        setIsOk(<></>);
+        setDisabled({
+            pass1: false,
+            pass2: true
+        });
+        setPassAlert(<Alert variant="success" key="success" dismissible>
+                Password changed succesfully
+        </Alert>);
     }
 
     const handleSubmitEvent = async () => {
@@ -109,6 +241,7 @@ const Settings = () => {
 
     useEffect(() => {
         fillOutInfo();
+        getHash();
     }, [])
 
     return (
@@ -160,11 +293,31 @@ const Settings = () => {
                                                         )
                                     :
                                     edge == 'Security' ? (<Card.Body>
-
+                                                            <h5>Change password</h5>    
+                                                            <br />
+                                                            {passAlert}
+                                                            <Form onSubmit={(e) => e.preventDefault()}>
+                                                                <Form.Group>
+                                                                    <Form.Label>Current password {isOk}</Form.Label>
+                                                                    <Form.Control disabled={disabled.pass1} name="password1" type="password" value={formPassword.password1} onChange={handlePassChange} />
+                                                                </Form.Group>
+                                                                <Form.Group>
+                                                                    <Form.Label>New password</Form.Label>
+                                                                    <Form.Control disabled={disabled.pass2} name="password2" type="password" value={formPassword.password2} onChange={handlePassChange} />
+                                                                </Form.Group>
+                                                                <Form.Group>
+                                                                    <Form.Label>Confirm new password</Form.Label>
+                                                                    <Form.Control disabled={disabled.pass2} name="password3" type="password" value={formPassword.password3} onChange={handlePassChange} />
+                                                                </Form.Group>
+                                                            </Form>
+                                                            <br />
+                                                            <div align="end"><Button disabled={disPassButton} onClick={handleChangePassword}>
+                                                                Change password
+                                                            </Button></div>
                                                         </Card.Body>)
                                     :
-                                    edge == 'Customization' ? (<Card.Body>
-                                                                
+                                    edge == 'Customization' ? (<Card.Body align="center">
+                                                                <Image src={workingon} height={208}/>
                                                             </Card.Body>)
                                     :
                                     (<Card.Body>
