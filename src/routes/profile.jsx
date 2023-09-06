@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Button, Form, InputGroup, Tooltip, OverlayTrigger, Alert, Modal, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Form, InputGroup, Tooltip, OverlayTrigger, Alert, Stack, Spinner, Modal } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import NavbarSample from "../components/navbar";
-import { getUserInfo, updateUserInfo, getUserArticles } from "../api/sanity";
+import { getUserInfo, getUserArticles, deleteArticleById, updateArticleById } from "../api/sanity";
 import { getUserId } from "../session";
-import { AiOutlineCopy, AiOutlineSetting } from 'react-icons/ai';
+import { AiOutlineCopy, AiOutlineSetting, AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 
 const Profile = () => {
     const id = getUserId();
@@ -20,13 +20,17 @@ const Profile = () => {
     const [showModal, setShowModal] = useState(false);
 
     const [formData, setFormData] = useState({
-        username: '',
-        wallet: '',
-        bio: ''
+        title: '',
+        content: '',
+        _id: ''
     })
 
-    const [updateAlert, setUpdateAlert] = useState(<></>);
+    const [articlesAlert, setArticlesAlert] = useState(<></>);
     const [articles, setArticles] = useState([]);
+    const [updateAlert, setUpdateAlert] = useState(<></>);
+    const [isEditing, setIsEditing] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [currentIdOnDelete, setCurrentIdOnDelete] = useState('');
     //function that copies on clipboard lnurlp
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(userData.lnurlp);
@@ -34,6 +38,7 @@ const Profile = () => {
     }
 
     const handleFormChange = (e) => {
+        setIsEditing(true);
         const { name, value } = e.target;
 
         setFormData({
@@ -59,29 +64,67 @@ const Profile = () => {
         })
     }
 
-    const handleSubmitEvent = async () => {
-        setUpdateAlert(<Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-        </Spinner>);
-
-        const response = await updateUserInfo(id, formData.username, formData.wallet, formData.bio);
-
-        if (!response) {
-            setUpdateAlert(<Alert variant="danger" key="danger" dismissible>
-                Error updating data
-            </Alert>)
-            return;
-        }
-
-        await fillOutInfo();
-
-        setShowModal(false);
-    }
-
     const fetchArticles = async () => {
         const response = await getUserArticles(id);
 
         setArticles(response);
+    }
+
+    const handleDeleteArticle = async () => {
+        setArticlesAlert(<Spinner animation='border' role='status'>
+        <span className='visually-hidden'>Loading...</span>
+      </Spinner>)
+        const response = await deleteArticleById(currentIdOnDelete);
+
+        if (!response) {
+            setArticlesAlert(<Alert variant="danger" dismissible>
+                there's a problem deleting the article
+            </Alert>)
+            return;
+        }
+
+        fetchArticles();
+        setArticlesAlert(<Alert variant="success" dismissible>
+                Article deleted
+            </Alert>)
+        setCurrentIdOnDelete('');
+        setShowConfirmModal(false);
+    }
+
+    const handleOpenModal = (articleId, title, content) => {
+        formData.title = title;
+        formData.content = content;
+        formData._id = articleId;
+        setShowModal(true);
+        setArticlesAlert(<></>)
+    }
+
+    const handleEditArticle = async () => {
+        setUpdateAlert(<Spinner animation='border' role='status'>
+        <span className='visually-hidden'>Loading...</span>
+      </Spinner>)
+
+        const response = await updateArticleById(formData._id, formData.title, formData.content);
+
+        if (!response) {
+            setUpdateAlert(<Alert variant="danger" dismissible>
+                Error editing article
+            </Alert>)
+            return;
+        }
+
+        setShowModal(false);
+        fetchArticles();
+        setArticlesAlert(<Alert variant="success" dismissible>
+            Article edited
+        </Alert>);
+        setIsEditing(false);
+        setUpdateAlert(<></>);
+    }
+
+    const handleOpenModalDelete = (articleId) => {
+        setShowConfirmModal(true);
+        setCurrentIdOnDelete(articleId);
     }
 
     //when the page loads
@@ -131,77 +174,97 @@ const Profile = () => {
                                 </Alert>
                                 </Form>
                             </Card.Body>
-                            <Card.Footer>
-                                <Container>
-                                    <Row>
-                                        <Col lg="8">
-                                            <Button variant="light" href="/settings">
-                                                <AiOutlineSetting />
-                                            </Button>
-                                        </Col>
-                                        <Col lg="4">
-                                            <Button variant="primary" onClick={() => setShowModal(true)}>Edit profile</Button>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                                
-
+                            <Card.Footer align="end">
+                                <Button variant="light" href="/settings">
+                                    <AiOutlineSetting /> | Settings
+                                </Button>
                             </Card.Footer>
                         </Card>
                     </Col>
                     {/* Overlay of my articles submitted */}
                     <Col lg={{span: 8}}>
-                        {articles.map((article) => (
+                        {articlesAlert}
+                        {articles ? articles.map((article) => (
                             <>
-                                <Row key={article._id}>
+                                <Row>
                                 <Card>
                                     <Card.Body>
                                     <Row>
-                                        <Col xs="12" sm="12" lg="12">
+                                        <Col xs="12" sm="12" lg="10">
                                         <Card.Title>{article.title}</Card.Title>
+                                        <Card.Subtitle className='text-muted'>{article.edited == 1 ? 'edited' : ''}</Card.Subtitle>
                                         <Card.Text>{article.content}</Card.Text>
+                                        </Col>
+                                        <Col  xs="12" sm="12" lg="2">
+                                            <Stack gap={2}>
+                                                        <OverlayTrigger
+                                                key={'top'}
+                                                placement={'top'}
+                                                overlay={
+                                                    <Tooltip>
+                                                        Edit article!
+                                                    </Tooltip>
+                                                }
+                                                >
+                                                    <Button variant="primary" onClick={() => handleOpenModal(article._id, article.title, article.content)}>
+                                                        <AiOutlineEdit/>
+                                                    </Button>
+                                                </OverlayTrigger>
+                                                <OverlayTrigger
+                                                key={'top'}
+                                                placement={'top'}
+                                                overlay={
+                                                    <Tooltip>
+                                                        Delete article!
+                                                    </Tooltip>
+                                                }
+                                                >
+                                                    <Button variant="danger" onClick={() => handleOpenModalDelete(article._id)}>
+                                                        <AiOutlineDelete/>
+                                                    </Button>
+                                                </OverlayTrigger>
+                                            </Stack>
                                         </Col>
                                     </Row>
                                     </Card.Body>
                                 </Card>
-                                </Row>
+                                </Row>  
                                 <br />
                             </>
-                        ))}
+                        )) : <div align="center"> <span style={{fontSize: '24px'}}>No articles submitted yet</span></div>}
                     </Col>
                 </Row>
-                <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static"
-        keyboard={false}>
-                    <Modal.Header>
-                        <Modal.Title>Profile</Modal.Title>
-                    </Modal.Header>
+            </Container>
+            <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static" keyboard={false}>
+                <Modal.Header>
+                    <Modal.Title>Edit modal</Modal.Title>
+                </Modal.Header>
                     <Modal.Body>
-                        {updateAlert}
-                        <Form>
+                    {updateAlert}
+                        <Form onSubmit={(e) => e.preventDefault()}>
                             <Form.Group>
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control name="username" type="text" value={formData.username} onChange={handleFormChange} />
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control type="text" name="title" value={formData.title} onChange={handleFormChange} />
                             </Form.Group>
                             <Form.Group>
-                                <Form.Label>Wallet name</Form.Label>
-                                <Form.Control name="wallet" type="text" value={formData.wallet} onChange={handleFormChange} />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Biography</Form.Label>
-                                <Form.Control name="bio" as="textarea" value={formData.bio} onChange={handleFormChange} />
+                                <Form.Label>Content</Form.Label>
+                                <Form.Control rows={6} as="textarea" name="content" value={formData.content} onChange={handleFormChange} />
                             </Form.Group>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={handleSubmitEvent}>
-                            Save Changes
-                        </Button>
+                        <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>
+                        <Button onClick={handleEditArticle} variant={!isEditing ? "secondary" : "primary"} disabled={!isEditing}>Save changes</Button>
                     </Modal.Footer>
-                </Modal>
-            </Container>
+            </Modal>
+            <Modal show={showConfirmModal} onHide={() => setShowConfirmModal} backdrop="static" keyboard={false}>
+                <Modal.Header><Modal.Title>Are you sure?</Modal.Title></Modal.Header>
+                <Modal.Body>Once you delete an article there's no way to recover it</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>No, go back</Button>
+                    <Button variant="danger" onClick={() => handleDeleteArticle()}>Yes, delete article</Button>
+                </Modal.Footer>
+            </Modal>
         </>
     )
 }

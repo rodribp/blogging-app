@@ -31,7 +31,8 @@ const articleSchema = (title, content, usrId) => {
         author: {
             _type: 'reference',
             _ref: usrId
-        }
+        },
+        edited: '0'
     }
 }
 
@@ -82,8 +83,8 @@ const getFeedArticles = async (authorId) => {
             _id,
             username,
             wallet,
-            lnurlp
-        }, title, content}`;
+            lnurlp,
+        }, title, content, edited}`;
         const params = { authorId };
 
         const articles = await client.fetch(Query, params);
@@ -151,6 +152,7 @@ async function deleteAllFollowingLedgerDocuments() {
         _createdAt,
         title,
         content,
+        edited
       }`;
 
       const result = client.fetch(query, { userId });
@@ -161,4 +163,61 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
-export { userSchema, articleSchema, insertSanity, getUserIdByPrivKey, getFeedArticles, followSchema, deleteAllFollowingLedgerDocuments, getUserInfo, updateUserInfo, getUserArticles }
+  const deleteArticleById = async (articleId) => {
+    try {
+  
+      // Execute the mutation
+      const response = await client.delete(articleId);
+  
+      return response;
+    } catch (error) {
+      console.error('Error deleting article:', error.message);
+    }
+  }
+
+  const updateArticleById = async (articleId, title, content) => {
+    try {
+      const result = await client.patch(articleId).set( { title: title, content: content, edited: '1'} ).commit();
+      return result;
+    } catch (error) {
+      console.error("Error updating article", error.message);
+    }
+  }
+
+  const changePassword = async (userId, password) => {
+    try {
+      const hash = await hashPassword(password);
+      const result = await client.patch(userId).set( {password: hash} ).commit();
+      return result;
+    } catch (error) {
+      console.error("Error chaging password", error.message);
+    }
+  }
+
+  const getPasswordById = async (userId) => {
+    try {
+      const query = `*[_type == 'users' && _id == $userId]{ password }`
+      const params = { userId };
+
+      const response = client.fetch(query, params);
+
+      return response;
+    } catch (error) {
+        console.error("Error getting password", error.message);
+    }
+  }
+
+export { userSchema, 
+        articleSchema, 
+        insertSanity, 
+        getUserIdByPrivKey, 
+        getFeedArticles, 
+        followSchema, 
+        deleteAllFollowingLedgerDocuments, 
+        getUserInfo, 
+        updateUserInfo, 
+        getUserArticles, 
+        deleteArticleById,
+        updateArticleById,
+        changePassword,
+        getPasswordById }
