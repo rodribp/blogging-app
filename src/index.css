@@ -19,3 +19,25 @@ code {
 a:link, a:visited, a:active {
   text-decoration: none;
 }
+
+/* ErrorPage.css */
+
+.error-heading {
+  font-size: 25pt;
+  color: gray;
+  font-weight: bold;
+}
+
+.status {
+  position: relative;
+  font-size: 100pt;
+  font-weight: bold;
+  color: gray;
+}
+
+.status-text {
+  font-weight: bold;
+  color: rgb(95, 95, 95); /* Customize the text color */
+  font-size: 50pt;
+  text-shadow: -5px -5px white, -5px -5px white, 5px -5px white, 5px -5px white
+}

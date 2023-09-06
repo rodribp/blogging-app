@@ -1,7 +1,8 @@
 
 import { useRouteError } from "react-router-dom";
 import NavbarSample from "./components/navbar";
-import { Container, Row, Col, Alert } from "react-bootstrap";
+import { Container, Row, Col, Image } from "react-bootstrap";
+import oops from './img/oops.png';
 
 export default function ErrorPage() {
   const error = useRouteError();
@@ -12,14 +13,19 @@ export default function ErrorPage() {
       <NavbarSample />
       <Container>
       <Row className="justify-content-center mt-5">
-        <Col xs={12} md={6}>
-          <Alert variant="danger">
-            <h1 className="text-center">Oops! Something went wrong. {error.status + ' ' + error.statusText}</h1>
-            <p className="text-center">We're sorry, but it seems there was an error.</p>
-            <p className="text-center">
-              You can <a href="/">go back to the homepage</a> or try again later.
-            </p>
-          </Alert>
+        <Col xs={12} md={4}>
+          <Image src={oops} height={208}/>
+        </Col>
+        <Col xs={12} md={8}>
+          <p className="error-heading">Oops! Something went wrong</p>
+          <Container>
+            <Row>
+              <Col xs={12} md={6}>
+                <p className="status">{error.status}</p>
+                <p className="status-text">{error.statusText}</p>
+              </Col>
+            </Row>
+          </Container>
         </Col>
       </Row>
     </Container>
