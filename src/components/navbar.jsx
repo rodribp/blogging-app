@@ -70,6 +70,19 @@ const handleChange = (e) => {
     </Nav.Link>
       </>) : (
         <>
+        <Nav>
+        ㅤ
+        </Nav>
+        <Form className="d-flex" onSubmit={handleSearch}>
+            <Form.Control
+                placeholder='Search'
+                value={search}
+                onChange={handleChange}
+            />
+        </Form>
+        <Nav>
+        ㅤㅤ
+        </Nav>
         <Nav.Link href='/login'>
             <AiOutlineLogin />
             {'     '}
@@ -78,12 +91,26 @@ const handleChange = (e) => {
     </>);
 
     if (window.location.pathname == "/login" && !isLogged) {
-        elements = (
+        elements = (<>
+            <Nav>
+        ㅤ
+        </Nav>
+        <Form className="d-flex" onSubmit={handleSearch}>
+            <Form.Control
+                placeholder='Search'
+                value={search}
+                onChange={handleChange}
+            />
+        </Form>
+        <Nav>
+        ㅤㅤ
+        </Nav>
             <Nav.Link href='/signup'>
                 <AiOutlineUserAdd />
                 {'     '}
                 Signup
             </Nav.Link>
+            </>
         )
     }
 

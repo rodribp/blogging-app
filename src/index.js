@@ -58,6 +58,10 @@ const noLoggedRoutes = [
   {
     path: "/signup",
     element: <SignUp />
+  },
+  {
+    path: "/search",
+    element: <Search />
   }
 ];
 
