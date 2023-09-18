@@ -15,6 +15,7 @@ import Profile from "./routes/profile";
 import { isLoggedIn } from "./session";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Settings from "./routes/settings";
+import Search from "./routes/search";
 
 const loggedRoutes = [
   {
@@ -37,6 +38,10 @@ const loggedRoutes = [
   {
     path:"/settings",
     element: <Settings />
+  },
+  {
+    path: "/search",
+    element: <Search />
   }
 ];
 
