@@ -184,7 +184,7 @@ const Profile = () => {
                     {/* Overlay of my articles submitted */}
                     <Col lg={{span: 8}}>
                         {articlesAlert}
-                        {articles ? articles.map((article) => (
+                        {articles.length != 0 ? articles.map((article) => (
                             <>
                                 <Row>
                                 <Card>

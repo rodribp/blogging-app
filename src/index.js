@@ -16,6 +16,7 @@ import { isLoggedIn } from "./session";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Settings from "./routes/settings";
 import Search from "./routes/search";
+import UserPage from "./routes/user";
 
 const loggedRoutes = [
   {
@@ -42,6 +43,10 @@ const loggedRoutes = [
   {
     path: "/search",
     element: <Search />
+  },
+  {
+    path: "/user",
+    element: <UserPage />
   }
 ];
 
@@ -62,6 +67,10 @@ const noLoggedRoutes = [
   {
     path: "/search",
     element: <Search />
+  },
+  {
+    path: "/user",
+    element: <UserPage />
   }
 ];
 
