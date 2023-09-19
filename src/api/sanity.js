@@ -207,6 +207,22 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
+  const lookForUserOrTitleMatch = async (input, id) => {
+    try {
+      const query = `*[[title, content, username, author -> username] match "*${input}*"] {_type == "users" && _id != $id => {
+        _type, _id, username, wallet, bio
+      },
+      _type == "articles" && author -> _id != $id => {
+        _type, _id, title, content, edited, author -> {_id, username, wallet, lnurlp}
+      }}`;
+      const response = client.fetch(query, { id });
+      
+      return response;
+    } catch (error) {
+      console.error("error looking for user", error.message);
+    }
+  }
+
 export { userSchema, 
         articleSchema, 
         insertSanity, 
@@ -220,4 +236,5 @@ export { userSchema,
         deleteArticleById,
         updateArticleById,
         changePassword,
-        getPasswordById }
+        getPasswordById,
+        lookForUserOrTitleMatch }
