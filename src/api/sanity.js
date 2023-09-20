@@ -234,13 +234,35 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
-  const deleteFollow = async (follow_id) =>  {
+  const deleteFollow = async (follow_id) => {
     try {
       const response = await client.delete(follow_id);
 
       return response;
     } catch (error) {
       console.error("Error deleting follow: ", error.message);
+    }
+  }
+
+  const getFollowersTotalById = async (user_id) => {
+    try {
+      const query = `*[_type == 'following_ledger' && followed._ref == $user_id] {_id}`;
+      const response = await client.fetch(query, { user_id });
+
+      return response.length;
+    } catch (error) {
+      console.error("Error fetching: ", error.message);
+    }
+  }
+
+  const getFollowingTotalById = async (user_id) => {
+    try {
+      const query = `*[_type == 'following_ledger' && follower._ref == $user_id] {_id}`;
+      const response = await client.fetch(query, { user_id });
+
+      return response.length;
+    } catch (error) {
+      console.error("Error fetching: ", error.message);
     }
   }
 
@@ -260,4 +282,6 @@ export { userSchema,
         getPasswordById,
         lookForUserOrTitleMatch,
         checkIsFollowed,
-        deleteFollow }
+        deleteFollow,
+        getFollowersTotalById,
+        getFollowingTotalById }

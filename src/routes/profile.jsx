@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Button, Form, InputGroup, Tooltip, OverlayTrigger, Alert, Stack, Spinner, Modal } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import NavbarSample from "../components/navbar";
-import { getUserInfo, getUserArticles, deleteArticleById, updateArticleById } from "../api/sanity";
+import { getUserInfo, getUserArticles, deleteArticleById, updateArticleById, getFollowersTotalById, getFollowingTotalById } from "../api/sanity";
 import { getUserId } from "../session";
 import { AiOutlineCopy, AiOutlineSetting, AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 
@@ -31,6 +31,9 @@ const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [currentIdOnDelete, setCurrentIdOnDelete] = useState('');
+    const [nFollowers, setNFollowers] = useState(0);
+    const [nFollowed, setNFollowed] = useState(0);
+
     //function that copies on clipboard lnurlp
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(userData.lnurlp);
@@ -68,6 +71,18 @@ const Profile = () => {
         const response = await getUserArticles(id);
 
         setArticles(response);
+    }
+
+    const checkUserFollows = async () => {
+        const followers = await getFollowersTotalById(id);
+        const following = await getFollowingTotalById(id);
+
+        if (!followers && !following) {
+            return;
+        }
+
+        setNFollowers(followers);
+        setNFollowed(following);
     }
 
     const handleDeleteArticle = async () => {
@@ -131,6 +146,7 @@ const Profile = () => {
     useEffect(() => {
         fillOutInfo();
         fetchArticles();
+        checkUserFollows();
     }, [])
 
     return (
@@ -173,6 +189,7 @@ const Profile = () => {
                                     Lnurl copied to clipboard!
                                 </Alert>
                                 </Form>
+                                <Card.Subtitle className="text-muted">Followers: {nFollowers} | Following: {nFollowed}</Card.Subtitle>
                             </Card.Body>
                             <Card.Footer align="end">
                                 <Button variant="light" href="/settings">

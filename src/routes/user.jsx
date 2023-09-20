@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Form, InputGroup, OverlayTrigger, Tooltip, Alert, Spinner } from "react-bootstrap";
 import { AiOutlineCopy, AiOutlineCheck } from "react-icons/ai";
 import NavbarSample from "../components/navbar";
-import { getUserInfo, getUserArticles, followSchema, insertSanity, checkIsFollowed, deleteFollow  } from "../api/sanity";
+import { getUserInfo, getUserArticles, followSchema, insertSanity, checkIsFollowed, deleteFollow, getFollowersTotalById, getFollowingTotalById } from "../api/sanity";
 import { QRCodeSVG } from "qrcode.react";
 import { getUserId } from "../session";
 
@@ -22,6 +22,8 @@ const UserPage = () => {
     const [show, setShow] = useState(false);
     const [isFollowed, setIsFollowed] = useState('');
     const [indicator, setIndicator] = useState(<></>);
+    const [nFollowers, setNFollowers] = useState(0);
+    const [nFollowed, setNFollowed] = useState(0);
 
 
     const fillOutInfo = async () => {
@@ -45,7 +47,6 @@ const UserPage = () => {
         const response = await checkIsFollowed(id, _id);
 
         if (response.length == 0) {
-            console.log('Not followed');
             return;
         }
 
@@ -59,6 +60,18 @@ const UserPage = () => {
         setShow(true);
     }
 
+    const checkUserFollows = async () => {
+        const followers = await getFollowersTotalById(_id);
+        const following = await getFollowingTotalById(_id);
+        
+        if (!followers && !following) {
+            return;
+        }
+
+        setNFollowers(followers);
+        setNFollowed(following);
+    }
+
     const handleFollowUser = async () => {
         setIndicator(<Spinner animation='border' role='status'>
         <span className='visually-hidden'>Loading...</span>
@@ -67,7 +80,6 @@ const UserPage = () => {
         const response = await insertSanity(scheme);
 
         if (!response) {
-            console.log('Error following user ' + response);
             return;
         }
 
@@ -82,7 +94,6 @@ const UserPage = () => {
         const response = await deleteFollow(isFollowed);
 
         if (!response) {
-            console.log('Error unfollowing user');
             return;
         }
 
@@ -94,6 +105,7 @@ const UserPage = () => {
         fillOutInfo();
         fetchArticles();
         checkFollow();
+        checkUserFollows();
     }, [])
 
     return (<>
@@ -135,6 +147,7 @@ const UserPage = () => {
                                 Lnurl copied to clipboard!
                             </Alert>
                             </Form>
+                            <Card.Subtitle className="text-muted">Followers: {nFollowers} | Following: {nFollowed}</Card.Subtitle>
                         </Card.Body>
                         {id ? !isFollowed ? (<Card.Footer align="end">
                             {indicator}
