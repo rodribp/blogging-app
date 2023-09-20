@@ -223,12 +223,33 @@ async function deleteAllFollowingLedgerDocuments() {
     }
   }
 
+  const checkIsFollowed = async (follower_id, followed_id) => {
+    try {
+      const query = `*[_type == 'following_ledger' && follower._ref == $follower_id && followed._ref == $followed_id] {_id}`;
+      const response = await client.fetch(query, { follower_id, followed_id });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching: ", error.message);
+    }
+  }
+
+  const deleteFollow = async (follow_id) =>  {
+    try {
+      const response = await client.delete(follow_id);
+
+      return response;
+    } catch (error) {
+      console.error("Error deleting follow: ", error.message);
+    }
+  }
+
 export { userSchema, 
         articleSchema, 
         insertSanity, 
         getUserIdByPrivKey, 
         getFeedArticles, 
-        followSchema, 
+        followSchema,
         deleteAllFollowingLedgerDocuments, 
         getUserInfo, 
         updateUserInfo, 
@@ -237,4 +258,6 @@ export { userSchema,
         updateArticleById,
         changePassword,
         getPasswordById,
-        lookForUserOrTitleMatch }
+        lookForUserOrTitleMatch,
+        checkIsFollowed,
+        deleteFollow }

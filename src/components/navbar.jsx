@@ -21,7 +21,7 @@ const handleSearch = (e) => {
     if(search == ''){
         return;
     }
-    window.location.href = '/search?u=' + search;
+    window.location.href = '/search?s=' + search;
 }
 
 const handleChange = (e) => {

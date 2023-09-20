@@ -21,7 +21,7 @@ class SearchPage extends React.Component {
     componentDidMount() {
         window.addEventListener('resize', this.handleResize);
         const params = new URLSearchParams(window.location.search);
-        const search = params.get("u");
+        const search = params.get("s");
 
         this.handleSearch(search);
     }

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Button, Form, InputGroup, OverlayTrigger, Tooltip, Alert } from "react-bootstrap";
-import { AiOutlineCopy } from "react-icons/ai";
+import { Container, Row, Col, Card, Button, Form, InputGroup, OverlayTrigger, Tooltip, Alert, Spinner } from "react-bootstrap";
+import { AiOutlineCopy, AiOutlineCheck } from "react-icons/ai";
 import NavbarSample from "../components/navbar";
-import { getUserInfo, getUserArticles,  } from "../api/sanity";
+import { getUserInfo, getUserArticles, followSchema, insertSanity, checkIsFollowed, deleteFollow  } from "../api/sanity";
 import { QRCodeSVG } from "qrcode.react";
+import { getUserId } from "../session";
 
 
 const UserPage = () => {
     const params = new URLSearchParams(window.location.search);
     const _id = params.get("u");
+    const id = getUserId();
 
     const [userData, setUserData] = useState({
         username: '',
@@ -18,6 +20,9 @@ const UserPage = () => {
     });
     const [articles, setArticles] = useState([]);
     const [show, setShow] = useState(false);
+    const [isFollowed, setIsFollowed] = useState('');
+    const [indicator, setIndicator] = useState(<></>);
+
 
     const fillOutInfo = async () => {
         const response = await getUserInfo(_id);
@@ -36,15 +41,59 @@ const UserPage = () => {
         setArticles(response);
     }
 
+    const checkFollow = async () => {
+        const response = await checkIsFollowed(id, _id);
+
+        if (response.length == 0) {
+            console.log('Not followed');
+            return;
+        }
+
+
+        setIsFollowed(response[0]._id)
+        setIndicator(<AiOutlineCheck />);
+    }
+
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(userData.lnurlp);
         setShow(true);
     }
 
+    const handleFollowUser = async () => {
+        setIndicator(<Spinner animation='border' role='status'>
+        <span className='visually-hidden'>Loading...</span>
+      </Spinner>);
+        const scheme = followSchema(id, _id);
+        const response = await insertSanity(scheme);
+
+        if (!response) {
+            console.log('Error following user ' + response);
+            return;
+        }
+
+        setIsFollowed(response._id);
+        setIndicator(<AiOutlineCheck />);
+    }
+
+    const handleUnfollowUser = async () => {
+        setIndicator(<Spinner animation='border' role='status'>
+        <span className='visually-hidden'>Loading...</span>
+      </Spinner>);
+        const response = await deleteFollow(isFollowed);
+
+        if (!response) {
+            console.log('Error unfollowing user');
+            return;
+        }
+
+        setIsFollowed('');
+        setIndicator(<></>)
+    }
+
     useEffect(() => {
         fillOutInfo();
         fetchArticles();
-        console.log(articles);
+        checkFollow();
     }, [])
 
     return (<>
@@ -87,6 +136,15 @@ const UserPage = () => {
                             </Alert>
                             </Form>
                         </Card.Body>
+                        {id ? !isFollowed ? (<Card.Footer align="end">
+                            {indicator}
+                            ㅤ
+                            <Button onClick={handleFollowUser}>Follow</Button>
+                        </Card.Footer>) : (<Card.Footer align="end">
+                            {indicator}
+                            ㅤ
+                            <Button variant="danger" onClick={handleUnfollowUser}>Unfollow</Button>
+                        </Card.Footer>) : (<></>)}
                     </Card>
                 </Col>
                 {/* Overlay of articles submitted */}
